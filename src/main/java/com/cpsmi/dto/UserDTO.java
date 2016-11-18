@@ -1,13 +1,26 @@
 package com.cpsmi.dto;
 
+import java.util.Date;
+
 /**
  * Created by Misha on 13.11.2016.
  */
 public class UserDTO {
+
+    private String password;
     private String email;
     private String name;
     private String language;
-    private String birthDate;
+    private Date birthDate;
+
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getEmail() {
         return email;
@@ -33,11 +46,11 @@ public class UserDTO {
         this.language = language;
     }
 
-    public String getBirthDate() {
+    public Date getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(String birthDate) {
+    public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
     }
 }

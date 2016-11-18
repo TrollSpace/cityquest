@@ -37,10 +37,17 @@ public class UserDAO {
      * Return the user having the passed email.
      */
     public User getByEmail(String email) {
-        return (User) entityManager.createQuery(
+        List<User> users = (List<User>) entityManager.createQuery(
                 "from User where email = :email")
                 .setParameter("email", email)
-                .getSingleResult();
+                .getResultList();
+        if (users == null || users.isEmpty()) {
+            return null;
+        }
+        if (users.size() == 1) {//todo убедиться, что в листе один элемент.
+            return users.get(0);
+        }
+        return null;
     }
 
     /**
