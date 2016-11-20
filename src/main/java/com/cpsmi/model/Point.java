@@ -16,15 +16,8 @@ public class Point {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "quest_id")
-    private Quest quest;
-
     @Column
     private String question;
-
-    @Column(name = "point_order")
-    private int pointOrder;
 
     @Column
     private double latitude;
@@ -43,28 +36,12 @@ public class Point {
         this.id = id;
     }
 
-    public Quest getQuest() {
-        return quest;
-    }
-
-    public void setQuest(Quest quest) {
-        this.quest = quest;
-    }
-
     public String getQuestion() {
         return question;
     }
 
     public void setQuestion(String question) {
         this.question = question;
-    }
-
-    public int getPointOrder() {
-        return pointOrder;
-    }
-
-    public void setPointOrder(int pointOrder) {
-        this.pointOrder = pointOrder;
     }
 
     public double getLatitude() {

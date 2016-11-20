@@ -2,9 +2,10 @@ package com.cpsmi.service;
 
 import com.cpsmi.dao.QuestDAO;
 import com.cpsmi.dao.UserDAO;
+import com.cpsmi.dto.AnswerDTO;
 import com.cpsmi.dto.QuestDTO;
 import com.cpsmi.dto.QuestionDTO;
-import com.cpsmi.model.Point;
+import com.cpsmi.model.PointInQuest;
 import com.cpsmi.model.Quest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,22 +49,38 @@ public class QuestService {
 
     public QuestionDTO getNextQuestion(String email, int questId) { // КвевстДАО преобразуем в Вопрос(либо первыйдля первой регистрации, либо последний неотвеченный).
 
-        Point nextQuestion = questDAO.getNextQuestion(email, questId); //Преобразуем лист в вопрос
+        PointInQuest nextQuestion = questDAO.getNextQuestion(email, questId); //Преобразуем лист в вопрос
         if (nextQuestion == null) { //если пусто дергаем Первый вопрос.
             nextQuestion = questDAO.getFirstQuestion(questId);
         }
-        if (nextQuestion != null) {  //в КвестДАО добавляем прогресс(юзера, поинт, таймстэмп) надо еще добавить в этот метод добавлять координаты окончания предидущего вопроса.
-            questDAO.addProgress(userDAO.getByEmail(email), nextQuestion, new Date());
-            return convert(nextQuestion);
+        if (nextQuestion != null) {  //в КвестДАО добавляем прогресс(юзера, поинт, таймстэмп) надо еще добавить в этот метод добавлять координаты окончания предыдущего вопроса.
+            if (!questDAO.userHasProgress(email, nextQuestion)) { //only if there was no progress for this question
+                questDAO.addProgress(userDAO.getByEmail(email), nextQuestion, new Date());
+            }
         }
-        return null;
+        return convert(nextQuestion);
     }
 
-    private QuestionDTO convert(Point source) { // конвертируем поинт в ДТО
+    private QuestionDTO convert(PointInQuest source) { // конвертируем поинт в ДТО
         QuestionDTO target = new QuestionDTO();
-        target.setQuestionText(source.getQuestion());
-        target.setLatitude(source.getLatitude());
-        target.setLongitude(source.getLongitude());
+        //todo add same check in all converters
+        if (source == null) {
+            return target;
+        }
+        target.setQuestionText(source.getPoint().getQuestion());
+        target.setLatitude(source.getPoint().getLatitude());
+        target.setLongitude(source.getPoint().getLongitude());
         return target;
+    }
+
+    public boolean answer(AnswerDTO answer, String email) {
+        //verify answer
+        PointInQuest pointInQuest = questDAO.getNextQuestion(email, answer.getQuestId());
+        if (pointInQuest.getPoint().getAnswer().contains(answer.getAnswer())) {
+            //record progress
+            questDAO.progress(pointInQuest, answer.getLongitude(), answer.getLatitude(), email, new Date());
+            return true;
+        }
+        return false;
     }
 }

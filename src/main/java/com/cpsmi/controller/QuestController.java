@@ -1,16 +1,15 @@
 package com.cpsmi.controller;
 
+import com.cpsmi.dto.AnswerDTO;
 import com.cpsmi.dto.QuestDTO;
 import com.cpsmi.dto.QuestionDTO;
 import com.cpsmi.service.QuestService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 
@@ -32,9 +31,16 @@ public class QuestController {
     //    От нажатия пользователем на выбранные квест
     @RequestMapping(value = "/nextQuestion", method = RequestMethod.GET)
     @ResponseBody
-    public QuestionDTO getNextQuestion(@RequestParam(value = "email") String email,
-                                       @RequestParam(value = "questId") int questId) {
-
-        return questService.getNextQuestion(email, questId);
+    public QuestionDTO getNextQuestion(@RequestParam(value = "questId") int questId,
+                                       Principal principal) {
+        return questService.getNextQuestion(principal.getName(), questId);
     }
+
+    @RequestMapping(value = "/answer", method = RequestMethod.POST)
+    @ResponseBody
+    public boolean answer(@RequestBody AnswerDTO answer, Principal principal) {
+        return questService.answer(answer, principal.getName());
+    }
+
+
 }

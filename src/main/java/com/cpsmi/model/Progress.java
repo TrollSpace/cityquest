@@ -1,14 +1,16 @@
 package com.cpsmi.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Misha on 13.11.2016.
  */
 @Entity
-@Table(name = "progress")
-public class Progress {
+@Table(name = "progress",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "point_in_quest_id"}))
+public class Progress implements Serializable {
 
     public Progress() {
     }
@@ -22,8 +24,8 @@ public class Progress {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "point_id")
-    private Point point;
+    @JoinColumn(name = "point_in_quest_id")
+    private PointInQuest pointInQuest;
 
     @Column
     private Date start;
@@ -53,12 +55,12 @@ public class Progress {
         this.user = user;
     }
 
-    public Point getPoint() {
-        return point;
+    public PointInQuest getPointInQuest() {
+        return pointInQuest;
     }
 
-    public void setPoint(Point point) {
-        this.point = point;
+    public void setPointInQuest(PointInQuest pointInQuest) {
+        this.pointInQuest = pointInQuest;
     }
 
     public Date getStart() {
