@@ -62,7 +62,7 @@ public class QuestService {
         }
     }
 
-    protected void addHintToProgress(Progress progress){
+    protected void addHintToProgress(Progress progress) {
         hintDAO.addHintToProgress(progress);
     }
 
@@ -111,25 +111,17 @@ public class QuestService {
 
     public HintDTO getNewHint(String email, int questId) {
         PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, questId);
-        List<Hint> hints = pointInQuest.getPoint().getHints();
+        List<Hint> hints = pointInQuest.getPoint().getHints();  //todo make sort by order
         Progress progress = hintDAO.getNewHint(email, pointInQuest);
         HintDTO target = new HintDTO();
-        if (progress.getLastUsedHintId() == 0) {
-            for (Hint hint : hints){
-                 if(hint.getHintOrder() == 1){
-                     target.setOrder(hint.getHintOrder());
-                     target.setText(hint.getHintText());
-                 }
-             }
-        }
         for (Hint hint : hints) {
-            if (hint.getId() == progress.getLastUsedHintId()) {
-                target.setOrder(hint.getHintOrder());
-                target.setText(hint.getHintText());
-            }
+            progress.setLastUsedHintId(hint.getId());
+            addHintToProgress(progress);
+            target.setOrder(hint.getHintOrder());
+            target.setText(hint.getHintText());
+            target.setPointId(hint.getPoint().getId());
         }
-        progress.setLastUsedHintId(progress.getLastUsedHintId()+1);
-        addHintToProgress(progress);
+
         return target;
     }
 }
