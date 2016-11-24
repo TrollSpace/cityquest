@@ -27,6 +27,10 @@ public class Progress implements Serializable {
     @JoinColumn(name = "point_in_quest_id")
     private PointInQuest pointInQuest;
 
+//    @ManyToOne(fetch = FetchType.LAZY)
+    @Column(name = "last_used_hint_id")
+    private int lastUsedHintId;
+
     @Column
     private Date start;
 
@@ -93,5 +97,13 @@ public class Progress implements Serializable {
 
     public void setEndLongitude(double endLongitude) {
         this.endLongitude = endLongitude;
+    }
+
+    public int getLastUsedHintId() {
+        return lastUsedHintId;
+    }
+
+    public void setLastUsedHintId(int lastUsedHintId) {
+        this.lastUsedHintId = lastUsedHintId;
     }
 }

@@ -1,8 +1,10 @@
 package com.cpsmi.service;
 
+import com.cpsmi.dao.HintDAO;
 import com.cpsmi.dao.QuestDAO;
 import com.cpsmi.dao.UserDAO;
 import com.cpsmi.dto.AnswerDTO;
+import com.cpsmi.dto.HintDTO;
 import com.cpsmi.dto.QuestDTO;
 import com.cpsmi.dto.QuestionDTO;
 import com.cpsmi.model.PointInQuest;
@@ -25,6 +27,9 @@ public class QuestService {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private HintDAO hintDAO;
 
     public List<QuestDTO> list() {
         return convert(questDAO.list());
@@ -49,16 +54,30 @@ public class QuestService {
 
     public QuestionDTO getNextQuestion(String email, int questId) { // КвевстДАО преобразуем в Вопрос(либо первыйдля первой регистрации, либо последний неотвеченный).
 
-        PointInQuest nextQuestion = questDAO.getNextQuestion(email, questId); //Преобразуем лист в вопрос
-        if (nextQuestion == null) { //если пусто дергаем Первый вопрос.
-            nextQuestion = questDAO.getFirstQuestion(questId);
+        PointInQuest lastUnAnsweredQuestion = questDAO.getLastUnAnsweredQuestion(email, questId);
+        if (lastUnAnsweredQuestion != null) {
+            return convert(lastUnAnsweredQuestion);
+
         }
-        if (nextQuestion != null) {  //в КвестДАО добавляем прогресс(юзера, поинт, таймстэмп) надо еще добавить в этот метод добавлять координаты окончания предыдущего вопроса.
-            if (!questDAO.userHasProgress(email, nextQuestion)) { //only if there was no progress for this question
-                questDAO.addProgress(userDAO.getByEmail(email), nextQuestion, new Date());
+
+        PointInQuest lastAnsweredQuestion = questDAO.getLastAnsweredQuestion(email, questId);
+        if (lastAnsweredQuestion != null) {
+            PointInQuest nextQuestion = questDAO.getNextQuestion(lastAnsweredQuestion);
+            addProgress(nextQuestion, email);
+            return convert(nextQuestion);
+        }
+
+        PointInQuest firstQuestion = questDAO.getFirstQuestion(questId);
+        addProgress(firstQuestion, email);
+        return convert(firstQuestion);
+    }
+
+    protected void addProgress(PointInQuest newQuestion, String email) {
+        if (newQuestion != null) {  //в КвестДАО добавляем прогресс(юзера, поинт, таймстэмп) надо еще добавить в этот метод добавлять координаты окончания предыдущего вопроса.
+            if (!questDAO.userHasProgress(email, newQuestion)) { //only if there was no progress for this question
+                questDAO.addProgress(userDAO.getByEmail(email), newQuestion, new Date());
             }
         }
-        return convert(nextQuestion);
     }
 
     private QuestionDTO convert(PointInQuest source) { // конвертируем поинт в ДТО
@@ -75,12 +94,40 @@ public class QuestService {
 
     public boolean answer(AnswerDTO answer, String email) {
         //verify answer
-        PointInQuest pointInQuest = questDAO.getNextQuestion(email, answer.getQuestId());
+        PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, answer.getQuestId());
         if (pointInQuest.getPoint().getAnswer().contains(answer.getAnswer())) {
             //record progress
             questDAO.progress(pointInQuest, answer.getLongitude(), answer.getLatitude(), email, new Date());
             return true;
         }
         return false;
+    }
+
+    /*public List<HintDTO> listHint() {
+        return convert(hintDAO.list());
+
+    }
+
+    private List<HintDTO> convert(List<Hint> source) { //конвертируем лист квестов в лист квестов ДТО
+        ArrayList<HintDTO> target = new ArrayList<>();
+        for (Hint hint : source) {
+            target.add(convert(hint));
+        }
+        return target;
+    }
+
+    private HintDTO convert(Hint source) {  //Квест конвертим в Квест ДТО
+        HintDTO target = new HintDTO();
+        target.setPointId(source.getId());
+        target.setOrder(source.getHintOrder());
+        target.setText(source.getHintText());
+        return target;
+    }*/
+
+
+    public HintDTO getNewHint(String email, int pointId) {
+        HintDTO lastUsedHintId = hintDAO.getNewHint(email, pointId);
+        return lastUsedHintId;
+
     }
 }

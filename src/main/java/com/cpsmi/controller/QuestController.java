@@ -1,6 +1,7 @@
 package com.cpsmi.controller;
 
 import com.cpsmi.dto.AnswerDTO;
+import com.cpsmi.dto.HintDTO;
 import com.cpsmi.dto.QuestDTO;
 import com.cpsmi.dto.QuestionDTO;
 import com.cpsmi.service.QuestService;
@@ -42,5 +43,10 @@ public class QuestController {
         return questService.answer(answer, principal.getName());
     }
 
+    @RequestMapping(value = "/hint", method = RequestMethod.GET)
+    @ResponseBody
+    public HintDTO getNewHint(@RequestParam(value = "questId") int questId, Principal principal){
+        return questService.getNewHint(principal.getName(), questId);
+    }
 
 }

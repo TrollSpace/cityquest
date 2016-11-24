@@ -28,13 +28,13 @@ public class QuestDAO {
         return (List<Quest>) entityManager.createQuery("from Quest").getResultList();
     }
 
-    public PointInQuest getNextQuestion(String email, int questId) {
-        List points = entityManager.createQuery(
-                "from PointInQuest as pointInQuest left join pointInQuest.progressList as progress " +
-                        "where progress.pointInQuest = pointInQuest " +
-                        "and progress.user.email = :email " +
-                        "and pointInQuest.quest.id = :questId " +
-                        "and progress.end is null " +
+    public PointInQuest getLastAnsweredQuestion(String email, int questId) {
+
+        List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
+                "from PointInQuest as pointInQuest left join fetch pointInQuest.progressList as progress " +
+                        "left join fetch progress.user as user " +
+                        "where pointInQuest.quest.id = :questId " +
+                        "and user.email = :email and progress.end is not null " +
                         "order by pointInQuest.pointOrder desc")
                 .setParameter("questId", questId)
                 .setParameter("email", email)
@@ -42,10 +42,48 @@ public class QuestDAO {
                 .getResultList();
         //todo verify number of results
         if (!points.isEmpty()) {
-            return (PointInQuest) ((Object[]) points.get(0))[0];
+            return points.get(0);
         }
         return null;
     }
+
+    public PointInQuest getLastUnAnsweredQuestion(String email, int questId) {
+        List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
+                "from PointInQuest as pointInQuest left join fetch pointInQuest.progressList as progress " +
+                        "left join fetch progress.user as user " +
+                        "where pointInQuest.quest.id = :questId " +
+                        "and user.email = :email and progress.end is null " +
+                        "order by pointInQuest.pointOrder desc")
+                .setParameter("questId", questId)
+                .setParameter("email", email)
+                .setMaxResults(1)
+                .getResultList();
+        //todo verify number of results
+        if (!points.isEmpty()) {
+            return points.get(0);
+        }
+        return null;
+
+    }
+
+    public PointInQuest getNextQuestion(PointInQuest previousQuestion) {
+        List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
+                "from PointInQuest where quest = :quest and pointOrder = :nextOrder")
+                .setParameter("quest", previousQuestion.getQuest())
+                .setParameter("nextOrder", previousQuestion.getPointOrder() + 1)
+                .setMaxResults(1)
+                .getResultList();
+
+        if (points.isEmpty()) {
+            return null;
+        }
+        return points.get(0);
+
+    }
+
+    /*public Hint getNewHint(Principal principal, ){
+
+    }*/
 
     public PointInQuest getFirstQuestion(int questId) {
         List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
