@@ -7,7 +7,9 @@ import com.cpsmi.dto.AnswerDTO;
 import com.cpsmi.dto.HintDTO;
 import com.cpsmi.dto.QuestDTO;
 import com.cpsmi.dto.QuestionDTO;
+import com.cpsmi.model.Hint;
 import com.cpsmi.model.PointInQuest;
+import com.cpsmi.model.Progress;
 import com.cpsmi.model.Quest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -52,6 +54,29 @@ public class QuestService {
         return target;
     }
 
+    protected void addProgress(PointInQuest newQuestion, String email) {
+        if (newQuestion != null) {  //в КвестДАО добавляем прогресс(юзера, поинт, таймстэмп) надо еще добавить в этот метод добавлять координаты окончания предыдущего вопроса.
+            if (!questDAO.userHasProgress(email, newQuestion)) { //only if there was no progress for this question
+                questDAO.addProgress(userDAO.getByEmail(email), newQuestion, new Date());
+            }
+        }
+    }
+
+    protected void addHintToProgress(Progress progress){
+        hintDAO.addHintToProgress(progress);
+    }
+
+    public boolean answer(AnswerDTO answer, String email) {
+        //verify answer
+        PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, answer.getQuestId());
+        if (pointInQuest.getPoint().getAnswer().contains(answer.getAnswer())) {
+            //record progress
+            questDAO.progress(pointInQuest, answer.getLongitude(), answer.getLatitude(), email, new Date());
+            return true;
+        }
+        return false;
+    }
+
     public QuestionDTO getNextQuestion(String email, int questId) { // КвевстДАО преобразуем в Вопрос(либо первыйдля первой регистрации, либо последний неотвеченный).
 
         PointInQuest lastUnAnsweredQuestion = questDAO.getLastUnAnsweredQuestion(email, questId);
@@ -72,14 +97,6 @@ public class QuestService {
         return convert(firstQuestion);
     }
 
-    protected void addProgress(PointInQuest newQuestion, String email) {
-        if (newQuestion != null) {  //в КвестДАО добавляем прогресс(юзера, поинт, таймстэмп) надо еще добавить в этот метод добавлять координаты окончания предыдущего вопроса.
-            if (!questDAO.userHasProgress(email, newQuestion)) { //only if there was no progress for this question
-                questDAO.addProgress(userDAO.getByEmail(email), newQuestion, new Date());
-            }
-        }
-    }
-
     private QuestionDTO convert(PointInQuest source) { // конвертируем поинт в ДТО
         QuestionDTO target = new QuestionDTO();
         //todo add same check in all converters
@@ -92,42 +109,28 @@ public class QuestService {
         return target;
     }
 
-    public boolean answer(AnswerDTO answer, String email) {
-        //verify answer
-        PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, answer.getQuestId());
-        if (pointInQuest.getPoint().getAnswer().contains(answer.getAnswer())) {
-            //record progress
-            questDAO.progress(pointInQuest, answer.getLongitude(), answer.getLatitude(), email, new Date());
-            return true;
-        }
-        return false;
-    }
-
-    /*public List<HintDTO> listHint() {
-        return convert(hintDAO.list());
-
-    }
-
-    private List<HintDTO> convert(List<Hint> source) { //конвертируем лист квестов в лист квестов ДТО
-        ArrayList<HintDTO> target = new ArrayList<>();
-        for (Hint hint : source) {
-            target.add(convert(hint));
-        }
-        return target;
-    }
-
-    private HintDTO convert(Hint source) {  //Квест конвертим в Квест ДТО
+    public HintDTO getNewHint(String email, int questId) {
+        PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, questId);
+        List<Hint> hints = pointInQuest.getPoint().getHints();
+        Progress progress = hintDAO.getNewHint(email, pointInQuest);
         HintDTO target = new HintDTO();
-        target.setPointId(source.getId());
-        target.setOrder(source.getHintOrder());
-        target.setText(source.getHintText());
+        if (progress.getLastUsedHintId() == 0) {
+            for (Hint hint : hints){
+                 if(hint.getHintOrder() == 1){
+                     target.setOrder(hint.getHintOrder());
+                     target.setText(hint.getHintText());
+                 }
+             }
+        }
+        for (Hint hint : hints) {
+            if (hint.getId() == progress.getLastUsedHintId()) {
+                target.setOrder(hint.getHintOrder());
+                target.setText(hint.getHintText());
+            }
+        }
+        progress.setLastUsedHintId(progress.getLastUsedHintId()+1);
+        addHintToProgress(progress);
         return target;
-    }*/
-
-
-    public HintDTO getNewHint(String email, int pointId) {
-        HintDTO lastUsedHintId = hintDAO.getNewHint(email, pointId);
-        return lastUsedHintId;
-
     }
 }
+

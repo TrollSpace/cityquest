@@ -20,7 +20,6 @@ import java.util.List;
 @Transactional
 public class QuestDAO {
 
-    /*Hibernate: select pointinque0_.id as id1_2_0_, progressli1_.id as id1_3_1_, pointinque0_.point_id as point_id3_2_0_, pointinque0_.point_order as point_or2_2_0_, pointinque0_.quest_id as quest_id4_2_0_, progressli1_.end as end2_3_1_, progressli1_.end_latitude as end_lati3_3_1_, progressli1_.end_longitude as end_long4_3_1_, progressli1_.point_in_quest_id as point_in6_3_1_, progressli1_.start as start5_3_1_, progressli1_.user_id as user_id7_3_1_ from point_in_quest pointinque0_ left outer join progress progressli1_ on pointinque0_.id=progressli1_.point_in_quest_id cross join user user2_ where progressli1_.user_id=user2_.id and progressli1_.point_in_quest_id=pointinque0_.id and user2_.email=? and pointinque0_.quest_id=? and (progressli1_.end is null) order by pointinque0_.point_order desc limit ?*/
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -66,6 +65,7 @@ public class QuestDAO {
 
     }
 
+
     public PointInQuest getNextQuestion(PointInQuest previousQuestion) {
         List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
                 "from PointInQuest where quest = :quest and pointOrder = :nextOrder")
@@ -81,9 +81,6 @@ public class QuestDAO {
 
     }
 
-    /*public Hint getNewHint(Principal principal, ){
-
-    }*/
 
     public PointInQuest getFirstQuestion(int questId) {
         List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(

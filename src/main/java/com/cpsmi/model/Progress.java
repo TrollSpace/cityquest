@@ -27,8 +27,7 @@ public class Progress implements Serializable {
     @JoinColumn(name = "point_in_quest_id")
     private PointInQuest pointInQuest;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "last_used_hint_id")
+    @Column(name = "last_used_hint_id", nullable = false, columnDefinition = "int default 0")
     private int lastUsedHintId;
 
     @Column

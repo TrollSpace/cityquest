@@ -45,7 +45,7 @@ public class QuestController {
 
     @RequestMapping(value = "/hint", method = RequestMethod.GET)
     @ResponseBody
-    public HintDTO getNewHint(@RequestParam(value = "questId") int questId, Principal principal){
+    public HintDTO getNewHint(@RequestParam(value = "questId") int questId, Principal principal) {
         return questService.getNewHint(principal.getName(), questId);
     }
 
