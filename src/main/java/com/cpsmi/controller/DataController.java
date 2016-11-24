@@ -10,14 +10,13 @@ public class DataController {
 
     private static final Logger LOG = Logger.getLogger(DataController.class);
 
-//    @RequestMapping(value = "/profile", method = RequestMethod.GET)
+    //    @RequestMapping(value = "/profile", method = RequestMethod.GET)
     @ResponseBody
     public String profile() {
 
         return "Hello world";
 
     }
-
 
 
 }

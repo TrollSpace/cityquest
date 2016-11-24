@@ -27,6 +27,9 @@ public class Progress implements Serializable {
     @JoinColumn(name = "point_in_quest_id")
     private PointInQuest pointInQuest;
 
+    @Column(name = "last_used_hint_id", nullable = false, columnDefinition = "int default 0")
+    private int lastUsedHintId;
+
     @Column
     private Date start;
 
@@ -93,5 +96,13 @@ public class Progress implements Serializable {
 
     public void setEndLongitude(double endLongitude) {
         this.endLongitude = endLongitude;
+    }
+
+    public int getLastUsedHintId() {
+        return lastUsedHintId;
+    }
+
+    public void setLastUsedHintId(int lastUsedHintId) {
+        this.lastUsedHintId = lastUsedHintId;
     }
 }

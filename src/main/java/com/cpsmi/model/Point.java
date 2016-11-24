@@ -1,6 +1,7 @@
 package com.cpsmi.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by Misha on 13.11.2016.
@@ -11,6 +12,9 @@ public class Point {
 
     public Point() {
     }
+
+    @OneToMany(mappedBy = "point", fetch = FetchType.LAZY)
+    private List<Hint> hints;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,5 +70,13 @@ public class Point {
 
     public void setAnswer(String answer) {
         this.answer = answer;
+    }
+
+    public List<Hint> getHints() {
+        return hints;
+    }
+
+    public void setHints(List<Hint> hints) {
+        this.hints = hints;
     }
 }

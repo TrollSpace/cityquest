@@ -20,7 +20,6 @@ import java.util.List;
 @Transactional
 public class QuestDAO {
 
-    /*Hibernate: select pointinque0_.id as id1_2_0_, progressli1_.id as id1_3_1_, pointinque0_.point_id as point_id3_2_0_, pointinque0_.point_order as point_or2_2_0_, pointinque0_.quest_id as quest_id4_2_0_, progressli1_.end as end2_3_1_, progressli1_.end_latitude as end_lati3_3_1_, progressli1_.end_longitude as end_long4_3_1_, progressli1_.point_in_quest_id as point_in6_3_1_, progressli1_.start as start5_3_1_, progressli1_.user_id as user_id7_3_1_ from point_in_quest pointinque0_ left outer join progress progressli1_ on pointinque0_.id=progressli1_.point_in_quest_id cross join user user2_ where progressli1_.user_id=user2_.id and progressli1_.point_in_quest_id=pointinque0_.id and user2_.email=? and pointinque0_.quest_id=? and (progressli1_.end is null) order by pointinque0_.point_order desc limit ?*/
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -28,13 +27,13 @@ public class QuestDAO {
         return (List<Quest>) entityManager.createQuery("from Quest").getResultList();
     }
 
-    public PointInQuest getNextQuestion(String email, int questId) {
-        List points = entityManager.createQuery(
-                "from PointInQuest as pointInQuest left join pointInQuest.progressList as progress " +
-                        "where progress.pointInQuest = pointInQuest " +
-                        "and progress.user.email = :email " +
-                        "and pointInQuest.quest.id = :questId " +
-                        "and progress.end is null " +
+    public PointInQuest getLastAnsweredQuestion(String email, int questId) {
+
+        List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
+                "from PointInQuest as pointInQuest left join fetch pointInQuest.progressList as progress " +
+                        "left join fetch progress.user as user " +
+                        "where pointInQuest.quest.id = :questId " +
+                        "and user.email = :email and progress.end is not null " +
                         "order by pointInQuest.pointOrder desc")
                 .setParameter("questId", questId)
                 .setParameter("email", email)
@@ -42,10 +41,46 @@ public class QuestDAO {
                 .getResultList();
         //todo verify number of results
         if (!points.isEmpty()) {
-            return (PointInQuest) ((Object[]) points.get(0))[0];
+            return points.get(0);
         }
         return null;
     }
+
+    public PointInQuest getLastUnAnsweredQuestion(String email, int questId) {
+        List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
+                "from PointInQuest as pointInQuest left join fetch pointInQuest.progressList as progress " +
+                        "left join fetch progress.user as user " +
+                        "where pointInQuest.quest.id = :questId " +
+                        "and user.email = :email and progress.end is null " +
+                        "order by pointInQuest.pointOrder desc")
+                .setParameter("questId", questId)
+                .setParameter("email", email)
+                .setMaxResults(1)
+                .getResultList();
+        //todo verify number of results
+        if (!points.isEmpty()) {
+            return points.get(0);
+        }
+        return null;
+
+    }
+
+
+    public PointInQuest getNextQuestion(PointInQuest previousQuestion) {
+        List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
+                "from PointInQuest where quest = :quest and pointOrder = :nextOrder")
+                .setParameter("quest", previousQuestion.getQuest())
+                .setParameter("nextOrder", previousQuestion.getPointOrder() + 1)
+                .setMaxResults(1)
+                .getResultList();
+
+        if (points.isEmpty()) {
+            return null;
+        }
+        return points.get(0);
+
+    }
+
 
     public PointInQuest getFirstQuestion(int questId) {
         List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
