@@ -18,11 +18,11 @@ public class HintDAO {
     @PersistenceContext
     private EntityManager entityManager;
 
-//    public Hint create(Hint hint) {
+    //    public Hint create(Hint hint) {
 //        entityManager.persist(hint);
 //        return hint;
 //    }
-    public void addHintToProgress(Progress progress){
+    public void addHintToProgress(Progress progress) {
         entityManager.persist(progress);
     }
 
@@ -41,7 +41,6 @@ public class HintDAO {
             return progressList.get(0);
         }
         return null;
-
 
     }
 

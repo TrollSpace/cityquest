@@ -62,7 +62,7 @@ public class QuestService {
         }
     }
 
-    protected void addHintToProgress(Progress progress){
+    protected void addHintToProgress(Progress progress) {
         hintDAO.addHintToProgress(progress);
     }
 
@@ -111,25 +111,44 @@ public class QuestService {
 
     public HintDTO getNewHint(String email, int questId) {
         PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, questId);
-        List<Hint> hints = pointInQuest.getPoint().getHints();
+        List<Hint> hints = pointInQuest.getPoint().getHints();  //todo make sort by order
         Progress progress = hintDAO.getNewHint(email, pointInQuest);
+        int usedHintId = progress.getLastUsedHintId();
         HintDTO target = new HintDTO();
-        if (progress.getLastUsedHintId() == 0) {
-            for (Hint hint : hints){
-                 if(hint.getHintOrder() == 1){
-                     target.setOrder(hint.getHintOrder());
-                     target.setText(hint.getHintText());
-                 }
-             }
+        int usedHintOrder = 0;
+//        usedHintOrder = hints.get(usedHintId).getHintOrder();
+        for (Hint hint : hints) {
+            if (hint.getId() == usedHintId) {
+                usedHintOrder = hint.getHintOrder();
+                break;
+            }else usedHintOrder = 0;
         }
         for (Hint hint : hints) {
-            if (hint.getId() == progress.getLastUsedHintId()) {
-                target.setOrder(hint.getHintOrder());
-                target.setText(hint.getHintText());
+            if (usedHintId == 0) {
+                target.setOrder(hints.get(0).getHintOrder());
+                target.setText(hints.get(0).getHintText());
+                target.setPointId(hints.get(0).getId());
+                progress.setLastUsedHintId(hints.get(0).getId());
             }
+            if (1 == usedHintOrder) {
+                target.setOrder(hints.get(1).getHintOrder());
+                target.setText(hints.get(1).getHintText());
+                target.setPointId(hints.get(1).getId());
+                progress.setLastUsedHintId(hints.get(1).getId());
+            }
+            if (2 == usedHintOrder) {
+                target.setOrder(hints.get(2).getHintOrder());
+                target.setText(hints.get(2).getHintText());
+                target.setPointId(hints.get(2).getId());
+                progress.setLastUsedHintId(hints.get(2).getId());
+            }
+
+
         }
-        progress.setLastUsedHintId(progress.getLastUsedHintId()+1);
+
         addHintToProgress(progress);
+
+
         return target;
     }
 }
