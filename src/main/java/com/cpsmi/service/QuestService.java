@@ -113,14 +113,41 @@ public class QuestService {
         PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, questId);
         List<Hint> hints = pointInQuest.getPoint().getHints();  //todo make sort by order
         Progress progress = hintDAO.getNewHint(email, pointInQuest);
+        int usedHintId = progress.getLastUsedHintId();
         HintDTO target = new HintDTO();
+        int usedHintOrder = 0;
+//        usedHintOrder = hints.get(usedHintId).getHintOrder();
         for (Hint hint : hints) {
-            progress.setLastUsedHintId(hint.getId());
-            addHintToProgress(progress);
-            target.setOrder(hint.getHintOrder());
-            target.setText(hint.getHintText());
-            target.setPointId(hint.getPoint().getId());
+            if (hint.getId() == usedHintId) {
+                usedHintOrder = hint.getHintOrder();
+                break;
+            }else usedHintOrder = 0;
         }
+        for (Hint hint : hints) {
+            if (usedHintId == 0) {
+                target.setOrder(hints.get(0).getHintOrder());
+                target.setText(hints.get(0).getHintText());
+                target.setPointId(hints.get(0).getId());
+                progress.setLastUsedHintId(hints.get(0).getId());
+            }
+            if (1 == usedHintOrder) {
+                target.setOrder(hints.get(1).getHintOrder());
+                target.setText(hints.get(1).getHintText());
+                target.setPointId(hints.get(1).getId());
+                progress.setLastUsedHintId(hints.get(1).getId());
+            }
+            if (2 == usedHintOrder) {
+                target.setOrder(hints.get(2).getHintOrder());
+                target.setText(hints.get(2).getHintText());
+                target.setPointId(hints.get(2).getId());
+                progress.setLastUsedHintId(hints.get(2).getId());
+            }
+
+
+        }
+
+        addHintToProgress(progress);
+
 
         return target;
     }
