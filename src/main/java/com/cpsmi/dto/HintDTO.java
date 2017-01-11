@@ -8,6 +8,12 @@ public class HintDTO {
     private int pointId;
     private int order;
 
+    public HintDTO(int pointId, String text, int order) {
+        this.text = text;
+        this.pointId = pointId;
+        this.order = order;
+    }
+
     public int getPointId() {
         return pointId;
     }
@@ -31,5 +37,6 @@ public class HintDTO {
     public void setText(String text) {
         this.text = text;
     }
+
 
 }

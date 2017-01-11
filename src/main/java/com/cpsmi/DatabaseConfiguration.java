@@ -100,6 +100,9 @@ public class DatabaseConfiguration {
     @Autowired
     private DataSource dataSource;
 
+    /**
+     *
+     */
     @Autowired
     private LocalContainerEntityManagerFactoryBean entityManagerFactory;
 

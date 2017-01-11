@@ -114,42 +114,25 @@ public class QuestService {
         List<Hint> hints = pointInQuest.getPoint().getHints();  //todo make sort by order
         Progress progress = hintDAO.getNewHint(email, pointInQuest);
         int usedHintId = progress.getLastUsedHintId();
-        HintDTO target = new HintDTO();
-        int usedHintOrder = 0;
-//        usedHintOrder = hints.get(usedHintId).getHintOrder();
+
+        int nextHint = 1;
         for (Hint hint : hints) {
             if (hint.getId() == usedHintId) {
-                usedHintOrder = hint.getHintOrder();
+                nextHint = hint.getHintOrder() + 1;
                 break;
-            }else usedHintOrder = 0;
+            }
         }
-        for (Hint hint : hints) {
-            if (usedHintId == 0) {
-                target.setOrder(hints.get(0).getHintOrder());
-                target.setText(hints.get(0).getHintText());
-                target.setPointId(hints.get(0).getId());
-                progress.setLastUsedHintId(hints.get(0).getId());
-            }
-            if (1 == usedHintOrder) {
-                target.setOrder(hints.get(1).getHintOrder());
-                target.setText(hints.get(1).getHintText());
-                target.setPointId(hints.get(1).getId());
-                progress.setLastUsedHintId(hints.get(1).getId());
-            }
-            if (2 == usedHintOrder) {
-                target.setOrder(hints.get(2).getHintOrder());
-                target.setText(hints.get(2).getHintText());
-                target.setPointId(hints.get(2).getId());
-                progress.setLastUsedHintId(hints.get(2).getId());
-            }
+        if (nextHint <= hints.size()) {
+            Hint hint = hints.get(nextHint-1);
+            HintDTO target = new HintDTO(pointInQuest.getId(), hint.getHintText(), hint.getHintOrder());
+            progress.setLastUsedHintId(hint.getId());
+            addHintToProgress(progress);
+            return target;
 
-
+        } else {
+            throw new RuntimeException("No hint available.");
         }
 
-        addHintToProgress(progress);
-
-
-        return target;
     }
 }
 

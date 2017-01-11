@@ -43,10 +43,10 @@ public class UserService {
 
     public RegisterResult create(UserDTO dto) {
         if (userDAO.getByEmail(dto.getEmail()) != null) {
-            return new RegisterResult(false, "Сам дурак");
+            return new RegisterResult(false, "Already in use");
         }
         User user = convert(dto);
         userDAO.create(user);
-        return new RegisterResult(true, "Молодец");
+        return new RegisterResult(true, "Done");
     }
 }
