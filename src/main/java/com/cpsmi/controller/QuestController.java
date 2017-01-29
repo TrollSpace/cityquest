@@ -1,9 +1,6 @@
 package com.cpsmi.controller;
 
-import com.cpsmi.dto.AnswerDTO;
-import com.cpsmi.dto.HintDTO;
-import com.cpsmi.dto.QuestDTO;
-import com.cpsmi.dto.QuestionDTO;
+import com.cpsmi.dto.*;
 import com.cpsmi.service.QuestService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +32,20 @@ public class QuestController {
     public QuestionDTO getNextQuestion(@RequestParam(value = "questId") int questId,
                                        Principal principal) {
         return questService.getNextQuestion(principal.getName(), questId);
+    }
+
+    @RequestMapping(value = "/hasNextQuestion", method = RequestMethod.GET)
+    @ResponseBody
+    public boolean hasNextQuestion(@RequestParam(value = "questId") int questId,
+                                   Principal principal) {
+        return questService.hasNextQuestion(principal.getName(), questId);
+    }
+
+    @RequestMapping(value = "/getStatistic", method = RequestMethod.GET)
+    @ResponseBody
+    public StatisticDTO getStatistic(@RequestParam(value = "questId") int questId,
+                                     Principal principal) {
+        return questService.getStatistic(principal.getName(), questId);
     }
 
     @RequestMapping(value = "/answer", method = RequestMethod.POST)

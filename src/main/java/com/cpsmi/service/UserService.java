@@ -7,9 +7,6 @@ import com.cpsmi.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-/**
- * Created by Misha on 13.11.2016.
- */
 @Component
 public class UserService {
 

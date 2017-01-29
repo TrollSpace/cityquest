@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.transaction.Transactional;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +28,7 @@ public class QuestDAO {
         return (List<Quest>) entityManager.createQuery("from Quest").getResultList();
     }
 
-    public PointInQuest getLastAnsweredQuestion(String email, int questId) {
+    public PointInQuest getPreviousQuestion(String email, int questId) {
 
         List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
                 "from PointInQuest as pointInQuest left join fetch pointInQuest.progressList as progress " +
@@ -46,7 +47,7 @@ public class QuestDAO {
         return null;
     }
 
-    public PointInQuest getLastUnAnsweredQuestion(String email, int questId) {
+    public PointInQuest getCurrentQuestion(String email, int questId) {
         List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
                 "from PointInQuest as pointInQuest left join fetch pointInQuest.progressList as progress " +
                         "left join fetch progress.user as user " +
@@ -68,9 +69,9 @@ public class QuestDAO {
 
     public PointInQuest getNextQuestion(PointInQuest previousQuestion) {
         List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
-                "from PointInQuest where quest = :quest and pointOrder = :nextOrder")
+                "from PointInQuest where quest = :quest and pointOrder = :pointOrder")
                 .setParameter("quest", previousQuestion.getQuest())
-                .setParameter("nextOrder", previousQuestion.getPointOrder() + 1)
+                .setParameter("pointOrder", previousQuestion.getPointOrder() + 1)
                 .setMaxResults(1)
                 .getResultList();
 
@@ -82,7 +83,7 @@ public class QuestDAO {
     }
 
 
-    public PointInQuest getFirstQuestion(int questId) {
+    public PointInQuest getFirstQuestionInQuest(int questId) {
         List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
                 "from PointInQuest where quest.id = :questId order by pointOrder")
                 .setParameter("questId", questId)
@@ -128,5 +129,15 @@ public class QuestDAO {
         progress.setEnd(end);
         //todo set end lon/lat
         entityManager.persist(progress);
+    }
+
+    public List<Progress> getProgressList(String email, int questId) {
+        Query rawQuery = entityManager.createQuery(
+                "from Progress where pointInQuest.quest.id = :questId and user.email = :email");
+        Query query = rawQuery
+                .setParameter("questId", questId)
+                .setParameter("email", email);
+        List<Progress> listProgress = (List<Progress>) query.getResultList();
+        return listProgress;
     }
 }

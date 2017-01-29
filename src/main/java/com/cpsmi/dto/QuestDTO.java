@@ -7,6 +7,7 @@ public class QuestDTO {
     private int id;
     private String name;
     private String description;
+    private int questionCounter;
 
     public int getId() {
         return id;
@@ -30,5 +31,13 @@ public class QuestDTO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getQuestionCounter() {
+        return questionCounter;
+    }
+
+    public void setQuestionCounter(int questionCounter) {
+        this.questionCounter = questionCounter;
     }
 }

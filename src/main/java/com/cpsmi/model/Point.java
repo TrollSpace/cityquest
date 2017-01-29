@@ -3,9 +3,6 @@ package com.cpsmi.model;
 import javax.persistence.*;
 import java.util.List;
 
-/**
- * Created by Misha on 13.11.2016.
- */
 @Entity
 @Table(name = "point")
 public class Point {

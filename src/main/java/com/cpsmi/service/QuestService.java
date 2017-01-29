@@ -3,10 +3,7 @@ package com.cpsmi.service;
 import com.cpsmi.dao.HintDAO;
 import com.cpsmi.dao.QuestDAO;
 import com.cpsmi.dao.UserDAO;
-import com.cpsmi.dto.AnswerDTO;
-import com.cpsmi.dto.HintDTO;
-import com.cpsmi.dto.QuestDTO;
-import com.cpsmi.dto.QuestionDTO;
+import com.cpsmi.dto.*;
 import com.cpsmi.model.Hint;
 import com.cpsmi.model.PointInQuest;
 import com.cpsmi.model.Progress;
@@ -18,9 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by Misha on 13.11.2016.
- */
 @Component
 public class QuestService {
 
@@ -68,7 +62,7 @@ public class QuestService {
 
     public boolean answer(AnswerDTO answer, String email) {
         //verify answer
-        PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, answer.getQuestId());
+        PointInQuest pointInQuest = questDAO.getCurrentQuestion(email, answer.getQuestId());
         if (pointInQuest.getPoint().getAnswer().contains(answer.getAnswer())) {
             //record progress
             questDAO.progress(pointInQuest, answer.getLongitude(), answer.getLatitude(), email, new Date());
@@ -77,24 +71,48 @@ public class QuestService {
         return false;
     }
 
+    public boolean hasNextQuestion(String email, int questId) {
+        PointInQuest previousQuestion = questDAO.getPreviousQuestion(email, questId);
+        if (previousQuestion == null) {
+            return false;
+        }
+        PointInQuest nextQuestion = questDAO.getNextQuestion(previousQuestion);
+
+        return nextQuestion != null;
+    }
+
+    /**
+     * If we have unanswered question, we return this answer.
+     * If we don't have answered question(quest start) - we return first question.
+     * If quest started and we have answered question get next question.
+     * If quest is over we send null. If you want to check is quest is over, use {@link #hasNextQuestion(String, int)}
+     *
+     * @param email
+     * @param questId
+     * @return
+     */
     public QuestionDTO getNextQuestion(String email, int questId) { // КвевстДАО преобразуем в Вопрос(либо первыйдля первой регистрации, либо последний неотвеченный).
 
-        PointInQuest lastUnAnsweredQuestion = questDAO.getLastUnAnsweredQuestion(email, questId);
-        if (lastUnAnsweredQuestion != null) {
-            return convert(lastUnAnsweredQuestion);
+        PointInQuest currentQuestion = questDAO.getCurrentQuestion(email, questId);
+        if (currentQuestion != null) {
+            return convert(currentQuestion);
 
         }
 
-        PointInQuest lastAnsweredQuestion = questDAO.getLastAnsweredQuestion(email, questId);
-        if (lastAnsweredQuestion != null) {
-            PointInQuest nextQuestion = questDAO.getNextQuestion(lastAnsweredQuestion);
+        PointInQuest previousQuestion = questDAO.getPreviousQuestion(email, questId);
+        if (previousQuestion == null) {
+            PointInQuest firstQuestion = questDAO.getFirstQuestionInQuest(questId);
+            addProgress(firstQuestion, email);
+            return convert(firstQuestion);
+        } else {
+            PointInQuest nextQuestion = questDAO.getNextQuestion(previousQuestion);
+            if (nextQuestion == null) {
+                return null;
+            }
             addProgress(nextQuestion, email);
             return convert(nextQuestion);
         }
 
-        PointInQuest firstQuestion = questDAO.getFirstQuestion(questId);
-        addProgress(firstQuestion, email);
-        return convert(firstQuestion);
     }
 
     private QuestionDTO convert(PointInQuest source) { // конвертируем поинт в ДТО
@@ -110,7 +128,8 @@ public class QuestService {
     }
 
     public HintDTO getNewHint(String email, int questId) {
-        PointInQuest pointInQuest = questDAO.getLastUnAnsweredQuestion(email, questId);
+
+        PointInQuest pointInQuest = questDAO.getCurrentQuestion(email, questId);
         List<Hint> hints = pointInQuest.getPoint().getHints();  //todo make sort by order
         Progress progress = hintDAO.getNewHint(email, pointInQuest);
         int usedHintId = progress.getLastUsedHintId();
@@ -123,7 +142,7 @@ public class QuestService {
             }
         }
         if (nextHint <= hints.size()) {
-            Hint hint = hints.get(nextHint-1);
+            Hint hint = hints.get(nextHint - 1);
             HintDTO target = new HintDTO(pointInQuest.getId(), hint.getHintText(), hint.getHintOrder());
             progress.setLastUsedHintId(hint.getId());
             addHintToProgress(progress);
@@ -134,5 +153,35 @@ public class QuestService {
         }
 
     }
-}
 
+    public StatisticDTO getStatistic(String email, int questId) {
+        StatisticDTO stat = new StatisticDTO();
+        List<Progress> progress = questDAO.getProgressList(email, questId);
+
+        for (Progress progres : progress) {
+
+            stat.setQuestTime(progres.getEnd().getTime() - progres.getStart().getTime());
+            stat.setDistance(getDistanceFromCoordinate(10.000, 11.333,
+                    progres.getEndLatitude(), progres.getEndLongitude()));
+            stat.setQuestCounter(3);
+        }
+
+        return stat;
+
+    }
+
+    public double getDistanceFromCoordinate(double startLat, double startLong, double endLat, double endLong) {
+
+        double earthRadius = 6371.0;
+        double dLat = Math.toRadians(endLat - startLat);
+        double dLng = Math.toRadians(endLong - startLong);
+        double sindLat = Math.sin(dLat / 2);
+        double sindLng = Math.sin(dLng / 2);
+        double a = Math.pow(sindLat, 2) + Math.pow(sindLng, 2)
+                * Math.cos(Math.toRadians(startLat)) * Math.cos(Math.toRadians(endLat));
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double dist = earthRadius * c;
+
+        return dist;
+    }
+}

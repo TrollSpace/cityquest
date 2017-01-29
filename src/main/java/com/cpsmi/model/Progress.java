@@ -4,9 +4,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Created by Misha on 13.11.2016.
- */
 @Entity
 @Table(name = "progress",
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "point_in_quest_id"}))

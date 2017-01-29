@@ -2,10 +2,6 @@ package com.cpsmi.model;
 
 import javax.persistence.*;
 
-/**
- * Created by Misha on 17.11.2016.
- */
-
 @Entity
 @Table(name = "quest")
 public class Quest {
@@ -22,6 +18,9 @@ public class Quest {
 
     @Column
     private String description;
+
+    @Column
+    private int questionCounter;
 
     public Integer getId() {
         return id;
@@ -45,5 +44,13 @@ public class Quest {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getQuestionCounter() {
+        return questionCounter;
+    }
+
+    public void setQuestionCounter(int questionCounter) {
+        this.questionCounter = questionCounter;
     }
 }
