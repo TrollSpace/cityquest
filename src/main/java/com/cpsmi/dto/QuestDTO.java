@@ -7,7 +7,7 @@ public class QuestDTO {
     private int id;
     private String name;
     private String description;
-    private int questionCounter;
+    private int numberOfQuestions;
 
     public int getId() {
         return id;
@@ -33,11 +33,11 @@ public class QuestDTO {
         this.description = description;
     }
 
-    public int getQuestionCounter() {
-        return questionCounter;
+    public int getNumberOfQuestions() {
+        return numberOfQuestions;
     }
 
-    public void setQuestionCounter(int questionCounter) {
-        this.questionCounter = questionCounter;
+    public void setNumberOfQuestions(int numberOfQuestions) {
+        this.numberOfQuestions = numberOfQuestions;
     }
 }

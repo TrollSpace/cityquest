@@ -45,6 +45,7 @@ public class QuestService {
         target.setName(source.getName());
         target.setId(source.getId());
         target.setDescription(source.getDescription());
+        target.setNumberOfQuestions(questDAO.getNumberOfQuestions(source.getId()));
         return target;
     }
 
@@ -154,16 +155,16 @@ public class QuestService {
 
     }
 
-    public StatisticDTO getStatistic(String email, int questId) {
-        StatisticDTO stat = new StatisticDTO();
+    public StatisticsDTO getStatistics(String email, int questId) {
+        StatisticsDTO stat = new StatisticsDTO();
         List<Progress> progress = questDAO.getProgressList(email, questId);
 
         for (Progress progres : progress) {
 
-            stat.setQuestTime(progres.getEnd().getTime() - progres.getStart().getTime());
+            stat.setTime(stat.getTime() + (progres.getEnd().getTime() - progres.getStart().getTime()));
             stat.setDistance(getDistanceFromCoordinate(10.000, 11.333,
                     progres.getEndLatitude(), progres.getEndLongitude()));
-            stat.setQuestCounter(3);
+            stat.setAnsweredQuestions(questDAO.getPreviousQuestion(email, questId).getPointOrder());
         }
 
         return stat;

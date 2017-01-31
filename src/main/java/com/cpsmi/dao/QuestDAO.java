@@ -94,6 +94,18 @@ public class QuestDAO {
             return null;
         }
         return points.get(0);
+    }
+
+    public int getNumberOfQuestions(int questId) {
+        List<PointInQuest> points = (List<PointInQuest>) entityManager.createQuery(
+                "from PointInQuest where quest.id = :questId order by pointOrder")
+                .setParameter("questId", questId)
+                .getResultList();
+
+        if (points.isEmpty()) {
+            return 0;
+        }
+        return points.size();
 
     }
 

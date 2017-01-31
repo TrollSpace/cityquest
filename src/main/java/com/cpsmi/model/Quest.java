@@ -19,9 +19,6 @@ public class Quest {
     @Column
     private String description;
 
-    @Column
-    private int questionCounter;
-
     public Integer getId() {
         return id;
     }
@@ -44,13 +41,5 @@ public class Quest {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public int getQuestionCounter() {
-        return questionCounter;
-    }
-
-    public void setQuestionCounter(int questionCounter) {
-        this.questionCounter = questionCounter;
     }
 }

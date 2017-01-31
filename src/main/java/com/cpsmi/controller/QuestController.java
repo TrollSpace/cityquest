@@ -43,9 +43,9 @@ public class QuestController {
 
     @RequestMapping(value = "/getStatistic", method = RequestMethod.GET)
     @ResponseBody
-    public StatisticDTO getStatistic(@RequestParam(value = "questId") int questId,
-                                     Principal principal) {
-        return questService.getStatistic(principal.getName(), questId);
+    public StatisticsDTO getStatistics(@RequestParam(value = "questId") int questId,
+                                       Principal principal) {
+        return questService.getStatistics(principal.getName(), questId);
     }
 
     @RequestMapping(value = "/answer", method = RequestMethod.POST)
