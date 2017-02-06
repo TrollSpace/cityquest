@@ -7,9 +7,9 @@ public class StatisticsDTO {
 
     private long time;
 
-    public double distance;
+    private double distance;
 
-    public int answeredQuestions;
+    private int answeredQuestions;
 
     public long getTime() {
         return time;

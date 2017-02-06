@@ -118,7 +118,6 @@ public class QuestService {
 
     private QuestionDTO convert(PointInQuest source) { // конвертируем поинт в ДТО
         QuestionDTO target = new QuestionDTO();
-        //todo add same check in all converters
         if (source == null) {
             return target;
         }
@@ -131,7 +130,7 @@ public class QuestService {
     public HintDTO getNewHint(String email, int questId) {
 
         PointInQuest pointInQuest = questDAO.getCurrentQuestion(email, questId);
-        List<Hint> hints = pointInQuest.getPoint().getHints();  //todo make sort by order
+        List<Hint> hints = pointInQuest.getPoint().getHints();
         Progress progress = hintDAO.getNewHint(email, pointInQuest);
         int usedHintId = progress.getLastUsedHintId();
 
@@ -158,20 +157,31 @@ public class QuestService {
     public StatisticsDTO getStatistics(String email, int questId) {
         StatisticsDTO stat = new StatisticsDTO();
         List<Progress> progress = questDAO.getProgressList(email, questId);
+        double startLat = 10.000;
+        double startLong = 11.333;
 
-        for (Progress progres : progress) {
+        for (Progress elementOfProgress : progress) {
 
-            stat.setTime(stat.getTime() + (progres.getEnd().getTime() - progres.getStart().getTime()));
-            stat.setDistance(getDistanceFromCoordinate(10.000, 11.333,
-                    progres.getEndLatitude(), progres.getEndLongitude()));
-            stat.setAnsweredQuestions(questDAO.getPreviousQuestion(email, questId).getPointOrder());
+            try {
+
+                stat.setTime(stat.getTime() + (elementOfProgress.getEnd().getTime() - elementOfProgress.getStart().getTime()));
+                stat.setAnsweredQuestions(questDAO.getPreviousQuestion(email, questId).getPointOrder());
+                stat.setDistance(stat.getDistance() + getDistanceFromCoordinate(startLat, startLong,
+                        elementOfProgress.getEndLatitude(), elementOfProgress.getEndLongitude()));
+                startLat = elementOfProgress.getEndLatitude();
+                startLong = elementOfProgress.getEndLongitude();
+            } catch (NullPointerException exp)
+            {
+                System.out.println(exp);
+
+            }
         }
 
         return stat;
 
     }
 
-    public double getDistanceFromCoordinate(double startLat, double startLong, double endLat, double endLong) {
+    private double getDistanceFromCoordinate(double startLat, double startLong, double endLat, double endLong) {
 
         double earthRadius = 6371.0;
         double dLat = Math.toRadians(endLat - startLat);
