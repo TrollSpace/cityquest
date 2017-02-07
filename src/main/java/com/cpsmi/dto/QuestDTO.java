@@ -8,6 +8,8 @@ public class QuestDTO {
     private String name;
     private String description;
     private int numberOfQuestions;
+    private double startLatitude;
+    private double startLongitude;
 
     public int getId() {
         return id;
@@ -39,5 +41,21 @@ public class QuestDTO {
 
     public void setNumberOfQuestions(int numberOfQuestions) {
         this.numberOfQuestions = numberOfQuestions;
+    }
+
+    public double getStartLatitude() {
+        return startLatitude;
+    }
+
+    public void setStartLatitude(double startLatitude) {
+        this.startLatitude = startLatitude;
+    }
+
+    public double getStartLongitude() {
+        return startLongitude;
+    }
+
+    public void setStartLongitude(double startLongitude) {
+        this.startLongitude = startLongitude;
     }
 }

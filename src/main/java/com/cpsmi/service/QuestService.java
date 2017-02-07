@@ -157,8 +157,8 @@ public class QuestService {
     public StatisticsDTO getStatistics(String email, int questId) {
         StatisticsDTO stat = new StatisticsDTO();
         List<Progress> progress = questDAO.getProgressList(email, questId);
-        double startLat = 10.000;
-        double startLong = 11.333;
+        double startLat = (progress.get(0).getPointInQuest().getQuest()).getStartLatitude();
+        double startLong = (progress.get(0).getPointInQuest().getQuest()).getStartLongitude();
 
         for (Progress elementOfProgress : progress) {
 

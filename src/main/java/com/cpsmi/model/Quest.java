@@ -19,6 +19,28 @@ public class Quest {
     @Column
     private String description;
 
+    @Column
+    private double startLongitude;
+
+    public double getStartLongitude() {
+        return startLongitude;
+    }
+
+    public void setStartLongitude(double startLongitude) {
+        this.startLongitude = startLongitude;
+    }
+
+    public double getStartLatitude() {
+        return startLatitude;
+    }
+
+    public void setStartLatitude(double startLatitude) {
+        this.startLatitude = startLatitude;
+    }
+
+    @Column
+    private double startLatitude;
+
     public Integer getId() {
         return id;
     }

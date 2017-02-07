@@ -1,8 +1,5 @@
 package com.cpsmi.dto;
 
-/**
- * Created by Misha on 17.11.2016.
- */
 public class QuestionDTO {
     private String questionText;
     private double latitude;
